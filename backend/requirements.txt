@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+python-dotenv
+google-generativeai
+pillow
+pydantic
+python-multipart
+passlib[bcrypt]
+python-jose[cryptography]
+firebase-admin

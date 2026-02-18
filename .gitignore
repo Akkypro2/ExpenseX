@@ -1,0 +1,21 @@
+# --- IGNORE ROOT STUDIO FILES (The ones in your screenshot) ---
+.gradle/
+.idea/
+
+# --- IGNORE BACKEND JUNK ---
+backend/venv/
+backend/__pycache__/
+backend/expenses.db
+backend/.env
+
+# --- IGNORE FRONTEND JUNK ---
+frontend/build/
+frontend/app/build/
+frontend/.gradle/
+frontend/local.properties
+
+# Firebase / Google credentials
+google-services.json
+serviceAccountKey.json
+*.keystore
+*.jks
