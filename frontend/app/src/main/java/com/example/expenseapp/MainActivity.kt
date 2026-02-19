@@ -12,6 +12,11 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -329,7 +334,7 @@ fun MainScreenHolder(
     chatDisplay: MutableList<ChatMessagePayload>,
     onLogout: () -> Unit
 ) {
-    Scaffold(
+    Scaffold(modifier = Modifier.fillMaxSize().systemBarsPadding().imePadding(),
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("ExpenseX", fontWeight = FontWeight.Bold) },
@@ -621,14 +626,24 @@ fun ChatBotScreen(
 
 @Composable
 fun ExpensePieChart(expenses: List<ExpenseRequest>) {
-    val total = expenses.filter { it.type == "Debit" }.sumOf { it.amount?.toDouble()?: 0.0 }
+    val total = expenses.filter { it.type == "Debit" }.sumOf { it.amount?.toDouble() ?: 0.0 }
     if (total == 0.0) return
 
     val categories = expenses.filter { it.type == "Debit" }
         .groupBy { it.category }
-        .mapValues { entry -> entry.value.sumOf { it.amount?.toDouble()?: 0.0 }.toFloat() }
+        .mapValues { entry -> entry.value.sumOf { it.amount?.toDouble() ?: 0.0 }.toFloat() }
 
     val colors = listOf(Color(0xFF6200EE), Color(0xFF03DAC5), Color(0xFFFF5722), Color(0xFFFFC107), Color(0xFFE91E63))
+
+    // 1. Add Animation for a premium feel
+    var animationPlayed by remember { mutableStateOf(false) }
+    val animateSweep by animateFloatAsState(
+        targetValue = if (animationPlayed) 1f else 0f,
+        animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
+        label = "pie_animation"
+    )
+
+    LaunchedEffect(Unit) { animationPlayed = true }
 
     Row(
         modifier = Modifier.fillMaxWidth().height(150.dp).background(Color.White, RoundedCornerShape(12.dp)).padding(16.dp),
@@ -636,9 +651,19 @@ fun ExpensePieChart(expenses: List<ExpenseRequest>) {
     ) {
         Box(modifier = Modifier.size(120.dp), contentAlignment = Alignment.Center) {
             Canvas(modifier = Modifier.size(120.dp)) {
+                // 2. Draw a faint background track so the chart doesn't look empty
+                drawArc(
+                    color = Color(0xFFF0F0F0),
+                    startAngle = 0f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = Stroke(width = 30.dp.toPx(), cap = StrokeCap.Butt),
+                    size = Size(size.width, size.height)
+                )
+
                 var startAngle = -90f
                 categories.values.forEachIndexed { index, value ->
-                    val sweepAngle = (value / total.toFloat()) * 360f
+                    val sweepAngle = (value / total.toFloat()) * 360f * animateSweep
                     drawArc(
                         color = colors[index % colors.size],
                         startAngle = startAngle,
@@ -650,10 +675,18 @@ fun ExpensePieChart(expenses: List<ExpenseRequest>) {
                     startAngle += sweepAngle
                 }
             }
-            Text("₹${total.toInt()}", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+
+            // 3. Add explicit text explaining what the circle is
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Spent", fontSize = 10.sp, color = Color.Gray)
+                Text("₹${total.toInt()}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            }
         }
+
         Spacer(modifier = Modifier.width(24.dp))
-        Column {
+
+        // 4. Make the legend scrollable in case they add many categories!
+        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             categories.keys.forEachIndexed { index, name ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(modifier = Modifier.size(10.dp).background(colors[index % colors.size], CircleShape))
