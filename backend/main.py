@@ -220,7 +220,7 @@ async def chat_with_ai(request: ChatRequest, db: Session = Depends(get_db), curr
             role = "user" if msg.isUser else "model"
             gemini_history.append({"role": role, "parts": [msg.text]})
 
-        model = genai.GenerativeModel('gemini-1.5-flash') # Updated model name
+        model = genai.GenerativeModel('gemini-2.5-flash') # Updated model name
         chat = model.start_chat(history=gemini_history)
         response = chat.send_message(request.message)
         
@@ -243,7 +243,7 @@ async def analyze_receipt(file: UploadFile = File(...), db: Session = Depends(ge
         - amount (string): Total amount (just number, no currency symbol)
         - category (string): Choose from [Food, Travel, Entertainment, Grocery, Shopping, Bills, Other]
         """
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content([prompt, image])
         clean_text = response.text.replace("```json", "").replace("```", "").strip()
         data = json.loads(clean_text)
