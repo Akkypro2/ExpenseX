@@ -1,14 +1,15 @@
-package com.example.expenseapp
+package com.example.expenseapp.network
 
-import okhttp3.OkHttpClient
 import okhttp3.Interceptor
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
 
-    private const val BASE_URL = "https://hui-pronegotiation-clifton.ngrok-free.dev"
+    // ADDED THE TRAILING SLASH HERE:
+    private const val BASE_URL = "https://hui-pronegotiation-clifton.ngrok-free.dev/"
 
     var jwtToken: String? = null
 
@@ -17,20 +18,19 @@ object RetrofitInstance {
 
         val requestBuilder = original.newBuilder()
 
-        if(jwtToken != null){
+        if (jwtToken != null) {
             requestBuilder.header("Authorization", "Bearer $jwtToken")
         }
 
         val request = requestBuilder.build()
         chain.proceed(request)
-
     }
-    // 1. Create the Client with increased timeouts
+
     private val client = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
-        .connectTimeout(30, TimeUnit.SECONDS) // Time to find the server
-        .readTimeout(60, TimeUnit.SECONDS)    // Time to wait for the AI response (Critical!)
-        .writeTimeout(30, TimeUnit.SECONDS)   // Time to send the request
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
     val api: ExpenseApi by lazy {

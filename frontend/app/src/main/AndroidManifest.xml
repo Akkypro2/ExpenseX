@@ -48,7 +48,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
         <receiver
-            android:name=".SmsReceiver"
+            android:name=".receivers.SmsReceiver"
             android:exported="true"
             android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>

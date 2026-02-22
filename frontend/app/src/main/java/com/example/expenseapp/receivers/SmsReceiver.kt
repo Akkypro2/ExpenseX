@@ -1,5 +1,6 @@
-package com.example.expenseapp
+package com.example.expenseapp.receivers
 
+import android.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -10,6 +11,7 @@ import android.os.Build
 import android.provider.Telephony
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.example.expenseapp.MainActivity
 
 class SmsReceiver : BroadcastReceiver() {
 
@@ -72,7 +74,7 @@ class SmsReceiver : BroadcastReceiver() {
 
         // Prepare Intent to open App
         val activityIntent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             putExtra("auto_add_amount", amount)
             putExtra("sms_type", type)
         }
@@ -89,7 +91,7 @@ class SmsReceiver : BroadcastReceiver() {
         val message = if (type == "Credit") "Tap to add +₹$amount to income" else "Tap to add -₹$amount to expenses"
 
         val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_input_add) // Or R.drawable.your_logo
+            .setSmallIcon(R.drawable.ic_input_add) // Or R.drawable.your_logo
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

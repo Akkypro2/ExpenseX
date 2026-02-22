@@ -1,4 +1,4 @@
-package com.example.expenseapp
+package com.example.expenseapp.models
 
 import com.google.gson.annotations.SerializedName
 

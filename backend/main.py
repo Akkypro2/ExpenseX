@@ -272,3 +272,17 @@ async def analyze_receipt(file: UploadFile = File(...), db: Session = Depends(ge
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Failed")
+
+@app.delete("/expense/{expense_id}")
+def delete_expense(expense_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    db_expense = db.query(models.Expense).filter(
+        models.Expense.id == expense_id,
+        models.Expense.user_id == current_user.id
+    ).first()
+    if not db_expense:
+        raise HTTPException(status_code=404, detail = "Expense not found")
+    
+    db.delete(db_expense)
+    db.commit()
+
+    return {"status": "deleted"}
