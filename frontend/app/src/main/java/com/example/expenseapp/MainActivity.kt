@@ -34,13 +34,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.example.expenseapp.models.ChatMessagePayload
 import com.example.expenseapp.network.RetrofitInstance
+import com.example.expenseapp.ui.components.FloatingBottomBar
 import com.example.expenseapp.ui.screens.ChatScreen
 import com.example.expenseapp.ui.screens.DashboardScreen
 import com.example.expenseapp.ui.screens.LoginScreen
@@ -148,7 +151,8 @@ fun MainScreenHolder(
     chatDisplay: MutableList<ChatMessagePayload>,
     onLogout: () -> Unit
 ) {
-    Scaffold(modifier = Modifier.fillMaxSize().systemBarsPadding().imePadding(),
+    Scaffold(
+        modifier = Modifier.fillMaxSize().systemBarsPadding().imePadding(),
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("ExpenseX", fontWeight = FontWeight.Bold) },
@@ -158,29 +162,35 @@ fun MainScreenHolder(
                     }
                 }
             )
-        },
-        bottomBar = {
-            NavigationBar(containerColor = Color.White) {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, "Home") },
-                    label = { Text("Dashboard") },
-                    selected = currentScreenName == "Dashboard",
-                    onClick = { onScreenChange("Dashboard") }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Face, "AI Chat") },
-                    label = { Text("Ask AI") },
-                    selected = currentScreenName == "Chat",
-                    onClick = { onScreenChange("Chat") }
-                )
-            }
         }
+        // Notice we REMOVED the default bottomBar completely!
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
+
+        // We use a Box here so the floating nav bar can sit ON TOP of your screens
+        Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+
+            // 1. The Background Screens
             if (currentScreenName == "Dashboard") {
                 DashboardScreen()
             } else {
                 ChatScreen(chatHistory, chatDisplay)
+            }
+
+            // 2. The Floating Navigation Bar Overlay
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter) // Lock to the bottom center
+                    .padding(start = 32.dp, end = 32.dp, bottom = 24.dp) // Make it float safely above the bottom edge
+            ) {
+                FloatingBottomBar(
+                    // Convert to lowercase to match the "dashboard" and "chat" logic inside FloatingBottomBar
+                    currentScreen = currentScreenName.lowercase(),
+                    onScreenSelected = { selected ->
+                        // Map it back to your capitalized state names
+                        if (selected == "dashboard") onScreenChange("Dashboard")
+                        if (selected == "chat") onScreenChange("Chat")
+                    }
+                )
             }
         }
     }

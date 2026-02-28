@@ -44,7 +44,7 @@ fun ExpensePieChart(expenses: List<ExpenseRequest>) {
     LaunchedEffect(Unit) { animationPlayed = true }
 
     Row(
-        modifier = Modifier.fillMaxWidth().height(150.dp).background(Color.White, RoundedCornerShape(12.dp)).padding(16.dp),
+        modifier = Modifier.fillMaxWidth().height(150.dp).padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(modifier = Modifier.size(120.dp), contentAlignment = Alignment.Center) {

@@ -154,7 +154,8 @@ fun DashboardScreen() {
     // --- UI LAYOUT ---
     Scaffold(
         floatingActionButton = {
-            Column(horizontalAlignment = Alignment.End) {
+            Column(horizontalAlignment = Alignment.End,
+                modifier = Modifier.padding(bottom = 90.dp)) {
                 SmallFloatingActionButton(
                     onClick = { showManualDialog = true },
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -177,22 +178,63 @@ fun DashboardScreen() {
             }
         }
     ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding).fillMaxSize().background(Color(0xFFF5F5F5)).padding(16.dp)) {
-            DashboardCard(expenseList = expenseList, initialBalance = initialBalance, onEditBalance = { showBalanceDialog = true })
-            Spacer(modifier = Modifier.height(16.dp))
 
-            if (expenseList.isNotEmpty()) {
-                Text("Spending Analysis", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                ExpensePieChart(expenseList)
-                Spacer(modifier = Modifier.height(16.dp))
+        // THE FIX: Use a Box instead of a Column so things can overlap!
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .background(Color(0xFFF5F5F5)) // Overall app background
+        ) {
+
+            // 1. THE SCROLLABLE LIST (Drawn FIRST so it goes in the back!)
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    top = 210.dp,   // Space to let the floating card sit above it
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 120.dp // Space for the floating Action Button
+                ),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                // --- PIE CHART SECTION ---
+                if (expenseList.isNotEmpty()) {
+                    item {
+                        Column {
+                            Text("Spending Analysis", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            ExpensePieChart(expenseList)
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
+                }
+
+                // --- HISTORY HEADER ---
+                item {
+                    Text("History (Long press to delete)", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                }
+
+                // --- EXPENSE LIST ---
+                items(expenseList) { item ->
+                    ExpenseItem(item, onLongClick = { expenseToDelete = item })
+                }
             }
 
-            Text("History (Long press to delete)", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(expenseList) { item -> ExpenseItem(item, onLongClick = { expenseToDelete = item }) }
+            // 2. THE FLOATING DASHBOARD CARD (Drawn SECOND so it stays on top!)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    // Optional Pro-Tip: Adding a slight gradient background here
+                    // makes the items fade away smoothly as they go under the card!
+                    // .background(Brush.verticalGradient(listOf(Color(0xFFF5F5F5), Color.Transparent)))
+                    .padding(16.dp)
+            ) {
+                DashboardCard(
+                    expenseList = expenseList,
+                    initialBalance = initialBalance,
+                    onEditBalance = { showBalanceDialog = true }
+                )
             }
         }
     }
