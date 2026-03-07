@@ -209,7 +209,8 @@ async def chat_with_ai(request: ChatRequest, db: Session = Depends(get_db), curr
         You are a smart financial assistant. 
         1. Use the 'Database' below to answer questions about spending.
         2. If the user asks a follow-up question (like 'and who was the merchant?'), refer to the previous chat history.
-        3. Be concise and friendly
+        3. Analyze the spending patterns and provide insights if asked to give suggestions and advice for better future spending habits
+        4. Be concise and friendly
         {expense_context}
         """
         gemini_history = []

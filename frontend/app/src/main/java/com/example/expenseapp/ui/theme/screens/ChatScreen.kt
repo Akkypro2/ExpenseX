@@ -32,7 +32,7 @@ fun ChatScreen(
         if (displayMessages.isEmpty()) displayMessages.add(ChatMessagePayload("Hi! I'm connected to your Python Brain. Ask me anything about your spending!", false))
     }
 
-    Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF5F5F5)).padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF5F5F5)).padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 120.dp)) {
         LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(displayMessages) { msg ->
                 Row(
